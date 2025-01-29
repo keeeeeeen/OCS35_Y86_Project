@@ -1,3 +1,4 @@
-abc
-def
+halt
+nop
+addq %rax, %rbx
 //copy and paste a sample y86 code file here
