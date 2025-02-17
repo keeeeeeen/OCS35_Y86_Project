@@ -28,8 +28,8 @@ class Main{
         }
 
         HashMap<String, String> icode_ifun = new HashMap<String, String>();
-        HashMap<String, Integer> rA = new HashMap<String, Integer>();
-        HashMap<String, Integer> rB = new HashMap<String, Integer>();
+        //HashMap<String, Integer> rA = new HashMap<String, Integer>();
+        //HashMap<String, Integer> rB = new HashMap<String, Integer>();
 
         icode_ifun.put("halt", "00");
         icode_ifun.put("nop", "10");
@@ -47,10 +47,44 @@ class Main{
         icode_ifun.put("subq", "61");
         //finish hash map later
 
+        HashMap<String, String> registers = new HashMap<String, String>();
+        registers.put("%rax", "0");
+        registers.put("%rcx", "1");
+        registers.put("%rdx", "2");
+        registers.put("%rbx", "3");
+        registers.put("%rsp", "4");
+        registers.put("%rbp", "5");
+
+
         for (i=0; code[i] != null; i++){
-            String[] temp = code[i].split(" ");
+            //split each line by a comma or a blank space
+            String[] temp = code[i].split(", | ");
             temp[0] = icode_ifun.get(temp[0]);
+            System.out.println(temp[0]);
+
+            char icode = temp[0].charAt(0);
+            //set rA and rB for cmov and op
+            if (icode == '2' || icode == '4' || icode == '5' || icode == '6'){
+                temp[1] = registers.get(temp[1]);
+                temp[2] = registers.get(temp[2]);
+                System.out.println(temp[1]);
+                System.out.println(temp[2]);
+            }
+
+            //set rA and rB for push and pop
+            if (icode == 'A' || icode == 'B'){
+                temp[1] = registers.get(temp[1]) + 'F';
+            }
+
+            //set rA and rB for irmovq
+            if (icode == '3'){
+                temp[1] = 'F' + registers.get(temp[1]);
+            }
+
+            //set rA, rB, and D for rmmovq and mrmovq
+            if (icode == '4' || icode == '5'){
+
+            }
         }
-        
     }
 }

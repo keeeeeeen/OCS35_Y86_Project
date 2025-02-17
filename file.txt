@@ -1,4 +1,6 @@
 halt
 nop
-addq %rax, %rbx
-//copy and paste a sample y86 code file here
+addq %rax, %rcx
+subq %rdx, %rax
+rmmovq %rax, 8(%rcx)
+mrmovq 16(%rcx), %rax
