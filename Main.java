@@ -85,6 +85,9 @@ class Main{
             if (icode == '4' || icode == '5'){
 
             }
+
+            //Setting up Symbolic names into hashmap
+            
         }
     }
 }

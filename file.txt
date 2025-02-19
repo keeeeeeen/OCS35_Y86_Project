@@ -1,6 +1,6 @@
 halt
 nop
 addq %rax, %rcx
-subq %rdx, %rax
+subq %rdx, Main
 rmmovq %rax, 8(%rcx)
 mrmovq 16(%rcx), %rax
