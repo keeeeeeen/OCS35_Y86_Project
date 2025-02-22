@@ -86,6 +86,12 @@ class Main{
 
             //split each line by a comma or a blank space
             String[] temp = code[i].split(", | ");
+
+            if(temp[0] == ".pos"){
+                line_num = Integer.parseInt(temp[1]);
+                continue;
+            }
+
             temp[0] = icode_ifun.get(temp[0]);
             System.out.println(temp[0]);
 
