@@ -28,8 +28,6 @@ class Main{
         }
 
         HashMap<String, String> icode_ifun = new HashMap<String, String>();
-        //HashMap<String, Integer> rA = new HashMap<String, Integer>();
-        //HashMap<String, Integer> rB = new HashMap<String, Integer>();
 
         icode_ifun.put("halt", "00");
         icode_ifun.put("nop", "10");
@@ -82,14 +80,20 @@ class Main{
                 continue;
             }
 
-            line_num += 10;
-
             //split each line by a comma or a blank space
             String[] temp = code[i].split(", | ");
 
             if(temp[0] == ".pos"){
                 line_num = Integer.parseInt(temp[1]);
                 continue;
+            }
+
+            if(temp[0] == ".align"){
+
+            }
+
+            if(temp[0] == ".long" || temp[0] == ".quad"){
+                
             }
 
             temp[0] = icode_ifun.get(temp[0]);
@@ -145,6 +149,8 @@ class Main{
                 temp[1] = symbolic_names.get(temp[1]);
                 System.out.println(temp[1]);
             }
+
+            line_num += 10;
         }
     }
 }
