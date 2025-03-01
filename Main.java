@@ -64,10 +64,19 @@ class Main{
         registers.put("%rbx", "3");
         registers.put("%rsp", "4");
         registers.put("%rbp", "5");
-        //finish hash map later
+        registers.put("%rsi", "6");
+        registers.put("%rdi", "7");
+        registers.put("%r8", "8");
+        registers.put("%r9", "9");
+        registers.put("%r10", "A");
+        registers.put("%r11", "B");
+        registers.put("%r12", "C");
+        registers.put("%r13", "D");
+        registers.put("%r14", "E");
 
         HashMap<String, String> symbolic_names = new HashMap<String, String>();
-        int length, line_num = 0;
+        int length, byte_num = 0;
+        String output = "";
 
         for (i=0; code[i] != null; i++){
             System.out.println("");
@@ -76,24 +85,38 @@ class Main{
             //delete the colon and add an element to the hashmap e.g. main --> 0x0
             //i'm assuming that the symbolic name declarations are done before they are used i.e. loop: is done before call loop - fix!
             if(code[i].charAt(length-1) == ':'){
-                symbolic_names.put(code[i].replace(":", ""), ""+line_num);
+                symbolic_names.put(code[i].replace(":", ""), ""+byte_num);
                 continue;
             }
 
             //split each line by a comma or a blank space
             String[] temp = code[i].split(", | ");
+            int temp_length = temp.length;
 
             if(temp[0] == ".pos"){
-                line_num = Integer.parseInt(temp[1]);
+                byte_num = Integer.parseInt(temp[1]);
                 continue;
             }
 
+            //align to an x-byte boundary
+            //e.g. 8 byte boundary: number of zeros = 8 - current length % x
             if(temp[0] == ".align"){
-
+                int align_boundary = Integer.parseInt(temp[1]);
+                int number_of_zeros = 0;
+                if (byte_num / align_boundary != 0){
+                    number_of_zeros = align_boundary - byte_num % align_boundary;
+                }
+                for (int k=0; k < number_of_zeros; k++){
+                    output += "0";
+                    byte_num++;
+                }
+                continue;
             }
 
             if(temp[0] == ".long" || temp[0] == ".quad"){
-                
+                output += temp[1];
+                byte_num += 8;
+                continue;
             }
 
             temp[0] = icode_ifun.get(temp[0]);
@@ -150,7 +173,12 @@ class Main{
                 System.out.println(temp[1]);
             }
 
-            line_num += 10;
+            for (int k=0; k<temp_length; k++){
+                output += temp[k];
+            }
+
+            byte_num += 10;
         }
+        System.out.println(output);
     }
 }
