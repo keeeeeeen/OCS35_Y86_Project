@@ -6,21 +6,21 @@ import java.util.HashMap;
 
 class Main{
     public static void main(String args[]) throws IOException{
-        FileReader fr = new FileReader("file.txt");
-        BufferedReader br = new BufferedReader(fr);
+        FileReader file_Reader = new FileReader("file.txt");
+        BufferedReader buffered_Reader = new BufferedReader(file_Reader);
         //if we have more than 100 lines then we can just make the number bigger
         //maybe use an ArrayList if it needs to be resizable? idk whether this is strictly necessary though
         String[] code = new String [100];
         //to store one line at a time
-        String line = br.readLine();
+        String line = buffered_Reader.readLine();
 
         int i=0;
         while (line != null){
             code[i] = line;
-            line = br.readLine();
+            line = buffered_Reader.readLine();
             i++;
         }
-        br.close();
+        buffered_Reader.close();
 
         //print contents of code
         for (i=0; code[i] != null; i++){
