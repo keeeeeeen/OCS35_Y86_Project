@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 
 class Branch{
+    static int memoryAddress = 0;
+
     public static void main(String args[]) throws IOException{
         BufferedReader buffered_Reader = new BufferedReader(new FileReader("file.txt"));
         List<String> listOfStrings = new ArrayList<String>();
@@ -38,7 +40,6 @@ class Branch{
         HashMap<String, Integer> symbolic_names = new HashMap<String, Integer>();
         
         
-        int memoryAddress = 0;
         String output = "";
 
         for (int i=0; i<arrayOfLines.length; i++){
@@ -54,51 +55,122 @@ class Branch{
             
             //Seperate out the actual instruction and do a switch case
             String[] temp = line.split(" |, ");
-            String instruction = temp[0+lineWithSymbolicName]; //The instruction shifts over 1 to the right if theres a symbolic name
 
-            switch (icode_ifun.get(instruction)) {
-                case :
-                    
-                    break;
-                default:
-                    throw new AssertionError();
-            }
+            System.out.print(returnMachineCode(temp, lineWithSymbolicName));
         }
+
+        //Resolve the symbolic names using the symbolic_names hasmap
 
         System.out.println(output);
     }
 
-    //Make a hashmap for icode_ifun and the name
-    static HashMap<String, String> icode_ifun = new HashMap<String, String>(){{
-        put("halt"  , "00"); 
-        put("nop"   , "10");
-        put("rrmovq", "20");
-        put("cmovle", "21");
-        put("cmovl" , "22");
-        put("cmove" , "23");
-        put("cmovne", "24");
-        put("cmovge", "25");
-        put("cmovg" , "26");
-        put("irmovq", "30");
-        put("rmmovq", "40");
-        put("mrmovq", "50");
-        put("addq"  , "60");
-        put("subq"  , "61");
-        put("andq"  , "62");
-        put("xorq"  , "63");
-        put("jmp"   , "70");
-        put("jle"   , "71");
-        put("jl"    , "72");
-        put("je"    , "73");
-        put("jne"   , "74");
-        put("jge"   , "75");
-        put("jg"    , "76");
-        put("call"  , "80");
-        put("ret"   , "90");
-        put("pushq" , "A0");
-        put("popq"  , "B0");
-    }};
+    public static String returnMachineCode(String temp[], int lineWithSymbolicName){
+        String instruction = temp[0+lineWithSymbolicName]; //The instruction shifts over 1 to the right if theres a symbolic name
+        String output = "";
 
+        switch (instruction) {
+            case ".pos":
+                memoryAddress = Integer.parseInt(temp[1+lineWithSymbolicName]);
+                return "";
+            case ".align":
+                int align_boundary = Integer.parseInt(temp[1+lineWithSymbolicName]);
+                int number_of_zeros = 0;
+                if (memoryAddress / align_boundary != 0){
+                    number_of_zeros = align_boundary - memoryAddress % align_boundary;
+                }
+                for (int k=0; k < number_of_zeros; k++){
+                    output += "0";
+                    memoryAddress++;
+                }
+                break;
+            case ".long":
+                String value = temp[1+lineWithSymbolicName];
+                output = littleEndian(value, 4);
+                memoryAddress += 4;
+                break;
+            case ".quad":
+                value = temp[1+lineWithSymbolicName];
+                output = littleEndian(value, 8);
+                memoryAddress += 8;
+                break;
+            case "halt":
+                output = "00";
+                memoryAddress += 1;
+                break;
+            case "nop":
+                break;
+            case "rrmovl":
+                
+                break;
+            case "irmovl":
+                
+                break;
+            case "addq":
+                
+                break;
+            case "subq":
+                
+                break;
+            case "andq":
+                
+                break;
+            case "xorq":
+                
+                break;
+            case "jmp":
+                
+                break;
+            case "jle":
+                
+                break;
+            case "jl":
+                
+                break;
+            case "je":
+                
+                break;
+            case "jne":
+                
+                break;
+            case "jge":
+                
+                break;
+            case "jg":
+                
+                break;
+            case "call":
+                
+                break;
+            case "ret":
+                
+                break;
+            case "pushq":
+                
+                break;
+            case "popq":
+                
+                break;
+            default:
+                throw new AssertionError();
+        }
+        return output;
+    }
+
+    static String littleEndian(String value, Integer length){
+        value = value.split("0x")[1];
+        
+        Integer currentLength = value.length();
+        for (int i=0; i<length*2-currentLength; i++){
+            value = "0" + value;
+        }
+
+        String output="";
+        for (int i=0; i<length; i++){
+            output += value.substring(2*length-2*i-2, 2*length-2*i);
+        }
+        
+        return output;
+    }
 
     //Make a hasmap for the registers and the number
     static HashMap<String, String> registers = new HashMap<String, String>(){{
@@ -119,6 +191,7 @@ class Branch{
         put("%r14", "E");
     }};
 
+    //Make a hashmap for the length of the instruction
     static HashMap<String, Integer> icode_iLength = new HashMap<String, Integer>(){{
         put("0",1);
         put("1",1);
