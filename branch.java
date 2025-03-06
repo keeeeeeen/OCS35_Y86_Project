@@ -34,14 +34,7 @@ class Branch{
         element of the arrayOfLines to determine whether a symbolic name is included. If it is, we note the memory location.
         If not, we incrememnt the memory location based on the instruction.
         */
-
         
-
-        HashMap<String, Integer> symbolic_names = new HashMap<String, Integer>();
-        
-        
-        String output = "";
-
         for (int i=0; i<arrayOfLines.length; i++){
             String line = arrayOfLines[i];
 
@@ -61,7 +54,6 @@ class Branch{
 
         //Resolve the symbolic names using the symbolic_names hasmap
 
-        System.out.println(output);
     }
 
     public static String returnMachineCode(String temp[], int lineWithSymbolicName){
@@ -100,10 +92,16 @@ class Branch{
             case "nop":
                 break;
             case "rrmovl":
-                
+                output = "20";
+                output += registers.get(temp[1+lineWithSymbolicName]);
+                output += registers.get(temp[2+lineWithSymbolicName]);
+                memoryAddress += 2;
                 break;
             case "irmovl":
-                
+                output = "30F";
+                output += registers.get(temp[2+lineWithSymbolicName]);
+                output += littleEndian(temp[1+lineWithSymbolicName], 4);
+                memoryAddress += 4;
                 break;
             case "addq":
                 
@@ -206,5 +204,8 @@ class Branch{
         put("A",2);
         put("B",2);
     }};
+
+    //Make a hasmap for the symbolic names
+    static HashMap<String, Integer> symbolic_names = new HashMap<String, Integer>();
 
 }
