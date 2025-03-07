@@ -23,9 +23,10 @@ class Branch2{
         String[] arrayOfLines = listOfStrings.toArray(new String[0]);
 
         
-        //print contents of code
+        //trim (remove whitespaces before and after) + print contents of code
         for (int i=0; i<arrayOfLines.length; i++){
-            System.out.println(arrayOfLines[i]);
+            arrayOfLines[i] = arrayOfLines[i].trim();
+            //System.out.println(arrayOfLines[i]);
         }
 
         
@@ -50,8 +51,10 @@ class Branch2{
             //Seperate out the actual instruction and do a switch case
             String[] temp = line.split(" |, ");
 
-            System.out.print(returnMachineCode(temp, lineWithSymbolicName));
+            System.out.println(returnMachineCode(temp, lineWithSymbolicName));
         }
+
+        System.out.println(symbolic_names);
 
         //Resolve the symbolic names using the symbolic_names hasmap
 
@@ -68,7 +71,13 @@ class Branch2{
 
         switch (instruction) {
             case ".pos":
-                memoryAddress = Integer.parseInt(temp[1+lineWithSymbolicName]);
+                //if the number is in hex format - change to decimal
+                if(temp[1+lineWithSymbolicName].length() > 1 && temp[1+lineWithSymbolicName].substring(0,2).equals("0x")){
+                    memoryAddress = Integer.parseInt((temp[1+lineWithSymbolicName].substring(2)), 16);
+                }
+                else{
+                    memoryAddress = Integer.parseInt(temp[1+lineWithSymbolicName]);
+                }
                 return "";
             case ".align":
                 int align_boundary = Integer.parseInt(temp[1+lineWithSymbolicName]);
@@ -96,6 +105,7 @@ class Branch2{
                 memoryAddress += 1;
                 break;
             case "nop":
+                memoryAddress += 2;
                 break;
             case "rrmovq":
                 output = "20";
@@ -103,10 +113,46 @@ class Branch2{
                 output += registers.get(temp[2+lineWithSymbolicName]);
                 memoryAddress += 2;
                 break;
+            case "cmovle":
+                output = "21";
+                output += registers.get(temp[1+lineWithSymbolicName]);
+                output += registers.get(temp[2+lineWithSymbolicName]);
+                memoryAddress += 2;
+                break;
+            case "cmovl":
+                output = "22";
+                output += registers.get(temp[1+lineWithSymbolicName]);
+                output += registers.get(temp[2+lineWithSymbolicName]);
+                memoryAddress += 2;
+                break;
+            case "cmove":
+                output = "23";
+                output += registers.get(temp[1+lineWithSymbolicName]);
+                output += registers.get(temp[2+lineWithSymbolicName]);
+                memoryAddress += 2;
+                break;
+            case "cmovne":
+                output = "24";
+                output += registers.get(temp[1+lineWithSymbolicName]);
+                output += registers.get(temp[2+lineWithSymbolicName]);
+                memoryAddress += 2;
+                break;
+            case "cmovge":
+                output = "25";
+                output += registers.get(temp[1+lineWithSymbolicName]);
+                output += registers.get(temp[2+lineWithSymbolicName]);
+                memoryAddress += 2;
+                break;
+            case "cmovg":
+                output = "26";
+                output += registers.get(temp[1+lineWithSymbolicName]);
+                output += registers.get(temp[2+lineWithSymbolicName]);
+                memoryAddress += 2;
+                break;
             case "irmovq":
                 output = "30F";
                 output += registers.get(temp[2+lineWithSymbolicName]);
-                output += littleEndian(temp[1+lineWithSymbolicName], 4);
+                //output += littleEndian(temp[1+lineWithSymbolicName], 4);
 
                 //starts with $: convert to a 8-byte hex number, pad with zeros in the left
                 if(temp[1+lineWithSymbolicName].charAt(0) == '$'){
@@ -123,62 +169,83 @@ class Branch2{
                 output = "60";
                 output += registers.get(temp[1+lineWithSymbolicName]);
                 output += registers.get(temp[2+lineWithSymbolicName]);
+                memoryAddress += 2;
                 break;
             case "subq":
                 output = "61";
                 output += registers.get(temp[1+lineWithSymbolicName]);
                 output += registers.get(temp[2+lineWithSymbolicName]);
+                memoryAddress += 2;
                 break;
             case "andq":
                 output = "62";
                 output += registers.get(temp[1+lineWithSymbolicName]);
                 output += registers.get(temp[2+lineWithSymbolicName]);
+                memoryAddress += 2;
                 break;
             case "xorq":
                 output = "63";
                 output += registers.get(temp[1+lineWithSymbolicName]);
                 output += registers.get(temp[2+lineWithSymbolicName]);
+                memoryAddress += 2;
                 break;
             case "jmp":
                 output = "70";
                 //get the 8 byte address from hash map
                 output += symbolic_names.get(temp[1+lineWithSymbolicName]);
+                memoryAddress += 9;
                 break;
             case "jle":
                 output = "71";
                 output += symbolic_names.get(temp[1+lineWithSymbolicName]);
+                memoryAddress += 9;
                 break;
             case "jl":
-                
+                output = "72";
+                output += symbolic_names.get(temp[1+lineWithSymbolicName]);
+                memoryAddress += 9;
                 break;
             case "je":
-                
+                output = "73";
+                output += symbolic_names.get(temp[1+lineWithSymbolicName]);
+                memoryAddress += 9;
                 break;
             case "jne":
-                
+                output = "74";
+                output += symbolic_names.get(temp[1+lineWithSymbolicName]);
+                memoryAddress += 9;
                 break;
             case "jge":
-                
+                output = "75";
+                output += symbolic_names.get(temp[1+lineWithSymbolicName]);
+                memoryAddress += 9;
                 break;
             case "jg":
-                
+                output = "76";
+                output += symbolic_names.get(temp[1+lineWithSymbolicName]);
+                memoryAddress += 9;
                 break;
             case "call":
                 output = "80";
                 output += symbolic_names.get(temp[1+lineWithSymbolicName]);
+                System.out.println(temp[1+lineWithSymbolicName]);
+                memoryAddress += 9;
                 break;
             case "ret":
-                
+                output = "90";
+                memoryAddress += 1;
                 break;
             case "pushq":
                 output = "A0";
                 output += registers.get(temp[1+lineWithSymbolicName]);
                 output += "F";
+                memoryAddress += 2;
                 break;
             case "popq":
                 output = "B0";
                 output += registers.get(temp[1+lineWithSymbolicName]);
                 output += "F";
+                memoryAddress += 2;
                 break;
             default:
                 break;
@@ -226,13 +293,13 @@ class Branch2{
         put("0",1);
         put("1",1);
         put("2",2);
-        put("3",6);
-        put("4",6);
-        put("5",6);
+        put("3",10);
+        put("4",10);
+        put("5",10);
         put("6",2);
-        put("7",5);
-        put("8",2);
-        put("9",5);
+        put("7",9);
+        put("8",9);
+        put("9",1);
         put("A",2);
         put("B",2);
     }};
