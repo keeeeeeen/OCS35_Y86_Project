@@ -7,6 +7,8 @@ import java.util.List;
 
 class Branch2{
     static int memoryAddress = 0;
+    static String machineCode = "";
+    static String[] displacementRegisterSeparate;
 
     public static void main(String args[]) throws IOException{
         BufferedReader buffered_Reader = new BufferedReader(new FileReader("file.txt"));
@@ -35,7 +37,8 @@ class Branch2{
         element of the arrayOfLines to determine whether a symbolic name is included. If it is, we note the memory location.
         If not, we incrememnt the memory location based on the instruction.
         */
-        
+
+        //first for loop to create the symbolic_names hash map
         for (int i=0; i<arrayOfLines.length; i++){
             String line = arrayOfLines[i];
 
@@ -43,18 +46,45 @@ class Branch2{
             //If this is a line with a symbolic name
             if (line.contains(":")){
                 String symbolicName = (line.substring(0, line.indexOf(":")));
-                //convert the memory address to hex before saving it in the hash map
-                symbolic_names.put(symbolicName, Integer.toHexString(memoryAddress));
+                //convert the memory address to hex (eight bytes) before saving it in the hash map
+                symbolic_names.put(symbolicName, String.format("%08x", memoryAddress));
+                lineWithSymbolicName = 1;
+            }
+
+            String[] temp = line.split(" |, ");
+            if (line.contains(".")){
+                //do nothing
+            }
+            else if (lineWithSymbolicName == 1 && temp.length == 1){
+                //do nothing - when the line contains just the symbolic name and nothing else
+            }
+            else{
+                memoryAddress += instruction_length.get(temp[0+lineWithSymbolicName]);
+            }
+        }
+
+        //second loop - actual translation to machine code
+        memoryAddress = 0;
+        for (int i=0; i<arrayOfLines.length; i++){
+            String line = arrayOfLines[i];
+
+            Integer lineWithSymbolicName = 0;
+            //If this is a line with a symbolic name
+            if (line.contains(":")){
+                String symbolicName = (line.substring(0, line.indexOf(":")));
+                //convert the memory address to hex (eight bytes) before saving it in the hash map
+                symbolic_names.put(symbolicName, String.format("%08x", memoryAddress));
                 lineWithSymbolicName = 1;
             }
             
             //Seperate out the actual instruction and do a switch case
             String[] temp = line.split(" |, ");
 
-            System.out.println(returnMachineCode(temp, lineWithSymbolicName));
+            machineCode += returnMachineCode(temp, lineWithSymbolicName) + "\n";
+            //System.out.println(returnMachineCode(temp, lineWithSymbolicName));
         }
 
-        System.out.println(symbolic_names);
+        System.out.print(machineCode);
 
         //Resolve the symbolic names using the symbolic_names hasmap
 
@@ -160,8 +190,44 @@ class Branch2{
                     output += String.format("%08x", int_convert);
                 }
                 //else - the number is already in hex, just pad the left with more zeros
-                else{
+                else if (temp[1+lineWithSymbolicName].charAt(0) == '0'){
                     output += String.format("%8s", temp[1+lineWithSymbolicName].substring(2)).replace(' ', '0');
+                }
+                //else - the number is some sort of symbolic name (e.g. Stack, array)
+                else{
+                    output += symbolic_names.get(temp[1+lineWithSymbolicName]);
+                }
+                memoryAddress += 10;
+                break;
+            case "rmmovq":
+                output = "40";
+                output += registers.get(temp[1+lineWithSymbolicName]);
+                //take away the displacement and parentheses e.g. 8(%rax) --> %rax
+                displacementRegisterSeparate = temp[2+lineWithSymbolicName].split("\\(");
+                displacementRegisterSeparate[1] = displacementRegisterSeparate[1].replace(")", "");
+                output += registers.get(displacementRegisterSeparate[1]);
+                //add displacement to the end of the string
+                if(displacementRegisterSeparate[0] == ""){
+                    output += "00000000";
+                }
+                else{
+                    output += String.format("%08x", Integer.parseInt(displacementRegisterSeparate[0]));
+                }
+                memoryAddress += 10;
+                break;
+            case "mrmovq":
+                output = "50";
+                output += registers.get(temp[2+lineWithSymbolicName]);
+                //take away the displacement and parentheses e.g. 8(%rax) --> %rax
+                displacementRegisterSeparate = temp[1+lineWithSymbolicName].split("\\(");
+                displacementRegisterSeparate[1] = displacementRegisterSeparate[1].replace(")", "");
+                output += registers.get(displacementRegisterSeparate[1]);
+                //add displacement to the end of the string
+                if(displacementRegisterSeparate[0] == ""){
+                    output += "00000000";
+                }
+                else{
+                    output += String.format("%08x", Integer.parseInt(displacementRegisterSeparate[0]));
                 }
                 memoryAddress += 10;
                 break;
@@ -228,7 +294,6 @@ class Branch2{
             case "call":
                 output = "80";
                 output += symbolic_names.get(temp[1+lineWithSymbolicName]);
-                System.out.println(temp[1+lineWithSymbolicName]);
                 memoryAddress += 9;
                 break;
             case "ret":
@@ -286,6 +351,36 @@ class Branch2{
         put("%r12", "C");
         put("%r13", "D");
         put("%r14", "E");
+    }};
+
+    static HashMap<String, Integer> instruction_length = new HashMap<String, Integer>(){{
+        put("halt", 1);
+        put("nop", 1);
+        put("rrmovq", 2);
+        put("cmovle", 2);
+        put("cmovl", 2);
+        put("cmove", 2);
+        put("cmovne", 2);
+        put("cmovge", 2);
+        put("cmovg", 2);
+        put("irmovq", 10);
+        put("rmmovq", 10);
+        put("mrmovq", 10);
+        put("addq", 2);
+        put("subq", 2);
+        put("andq", 2);
+        put("xorq", 2);
+        put("jmp", 9);
+        put("jle", 9);
+        put("jl", 9);
+        put("je", 9);
+        put("jne", 9);
+        put("jge", 9);
+        put("jg", 9);
+        put("call", 9);
+        put("ret", 1);
+        put("pushq", 2);
+        put("popq", 2);
     }};
 
     //Make a hashmap for the length of the instruction
