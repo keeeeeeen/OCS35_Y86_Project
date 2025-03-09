@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,7 @@ class Branch2{
         }
         buffered_Reader.close();
 
-
+        PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
         //Turn list into array
         String[] arrayOfLines = listOfStrings.toArray(new String[0]);
 
@@ -47,7 +48,7 @@ class Branch2{
             if (line.contains(":")){
                 String symbolicName = (line.substring(0, line.indexOf(":")));
                 //convert the memory address to hex (eight bytes) before saving it in the hash map
-                symbolic_names.put(symbolicName, String.format("%08x", memoryAddress));
+                symbolic_names.put(symbolicName, String.format("%016x", memoryAddress));
                 lineWithSymbolicName = 1;
             }
 
@@ -80,11 +81,10 @@ class Branch2{
             //Seperate out the actual instruction and do a switch case
             String[] temp = line.split(" |, ");
 
-            machineCode += returnMachineCode(temp, lineWithSymbolicName) + "\n";
+            writer.println(returnMachineCode(temp, lineWithSymbolicName));
             //System.out.println(returnMachineCode(temp, lineWithSymbolicName));
         }
-
-        System.out.print(machineCode);
+        writer.close();
 
         //Resolve the symbolic names using the symbolic_names hasmap
 
@@ -187,11 +187,11 @@ class Branch2{
                 //starts with $: convert to a 8-byte hex number, pad with zeros in the left
                 if(temp[1+lineWithSymbolicName].charAt(0) == '$'){
                     int int_convert = Integer.parseInt(temp[1+lineWithSymbolicName].substring(1));
-                    output += String.format("%08x", int_convert);
+                    output += String.format("%016x", int_convert);
                 }
                 //else - the number is already in hex, just pad the left with more zeros
                 else if (temp[1+lineWithSymbolicName].charAt(0) == '0'){
-                    output += String.format("%8s", temp[1+lineWithSymbolicName].substring(2)).replace(' ', '0');
+                    output += String.format("%16s", temp[1+lineWithSymbolicName].substring(2)).replace(' ', '0');
                 }
                 //else - the number is some sort of symbolic name (e.g. Stack, array)
                 else{
@@ -211,7 +211,7 @@ class Branch2{
                     output += "00000000";
                 }
                 else{
-                    output += String.format("%08x", Integer.parseInt(displacementRegisterSeparate[0]));
+                    output += String.format("%016x", Integer.parseInt(displacementRegisterSeparate[0]));
                 }
                 memoryAddress += 10;
                 break;
@@ -227,7 +227,7 @@ class Branch2{
                     output += "00000000";
                 }
                 else{
-                    output += String.format("%08x", Integer.parseInt(displacementRegisterSeparate[0]));
+                    output += String.format("%016x", Integer.parseInt(displacementRegisterSeparate[0]));
                 }
                 memoryAddress += 10;
                 break;
