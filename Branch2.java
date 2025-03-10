@@ -26,10 +26,9 @@ class Branch2{
         String[] arrayOfLines = listOfStrings.toArray(new String[0]);
 
         
-        //trim (remove whitespaces before and after) + print contents of code
+        //trim (remove whitespaces before and after)
         for (int i=0; i<arrayOfLines.length; i++){
             arrayOfLines[i] = arrayOfLines[i].trim();
-            //System.out.println(arrayOfLines[i]);
         }
 
         
@@ -39,7 +38,7 @@ class Branch2{
         If not, we incrememnt the memory location based on the instruction.
         */
 
-        //first for loop to create the symbolic_names hash map
+        //first for loop - create the symbolic_names hash map
         for (int i=0; i<arrayOfLines.length; i++){
             String line = arrayOfLines[i];
 
@@ -52,6 +51,7 @@ class Branch2{
                 lineWithSymbolicName = 1;
             }
 
+            //calculate memoryAddress for the symbolic_names hash map
             String[] temp = line.split(" |, ");
             if (line.contains(".")){
                 //do nothing
@@ -318,6 +318,7 @@ class Branch2{
         return output;
     }
 
+    //function for littleEndian conversion (for .long and .quad)
     static String littleEndian(String value, Integer length){
         value = value.split("0x")[1];
         
